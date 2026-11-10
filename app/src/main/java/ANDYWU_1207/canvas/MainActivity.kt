@@ -66,7 +66,7 @@ fun TestCanvas(modifier: Modifier = Modifier) {
             Color.Red,
             Offset(200f, 800f),
             Offset(size.width, size.height),
-            strokeWidth = 10f
+            strokeWidth = 20f
         )
         //取得小小兵圖檔的寬度與高度
         val minionsWidth = minionsImage.width
