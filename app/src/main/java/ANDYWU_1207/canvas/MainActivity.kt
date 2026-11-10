@@ -15,8 +15,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import ANDYWU_1207.canvas.ui.theme.CANVASTheme
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 
 class MainActivity : ComponentActivity() {
@@ -37,30 +43,39 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TestCanvas(modifier: Modifier = Modifier) {
-    // 載入圖片資源 (小小兵)
-    val minionsImage: ImageBitmap =
-        ImageBitmap.imageResource(id = R.drawable.minions)
+    val minionsImage: ImageBitmap = ImageBitmap.imageResource(id = R.drawable.minions)
+
+    var offsetPosition by remember { mutableStateOf(Offset.Zero) }
 
     Canvas(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    val newX = offsetPosition.x + dragAmount.x
+                    val newY = offsetPosition.y + dragAmount.y
+
+                    if (newX > size.width || newY > size.height || newX < -minionsImage.width || newY < -minionsImage.height) {
+                        offsetPosition = Offset.Zero
+                    } else {
+                        offsetPosition = Offset(newX, newY)
+                    }
+                }
+            }
     ) {
-        //繪製洋紅色的圓, 半徑 100, 圓心 (100,100)
         drawCircle(
             color = Color.Magenta,
             radius = 100f,
             center = Offset(100f, 100f)
         )
 
-        //繪製藍色空心矩形, 左上角 (300,200), 寬度與高度 200
         drawRect(
             color = Color.Blue,
             topLeft = Offset(300f, 200f),
             size = Size(200f, 200f),
-            style = Stroke(width = 10f) // 使用 style 控制外框樣式
+            style = Stroke(width = 10f)
         )
-        // 繪製紅色的線， 從 (200,800) 畫到右下角, 線條粗細 10
-        // size.width：畫布的總寬度（Float）
-        // size.height：畫布的總高度（Float)
 
         drawLine(
             Color.Red,
@@ -68,20 +83,15 @@ fun TestCanvas(modifier: Modifier = Modifier) {
             Offset(size.width, size.height),
             strokeWidth = 20f
         )
-        //取得小小兵圖檔的寬度與高度
-        val minionsWidth = minionsImage.width
-        val minionsHeight = minionsImage.height
 
-        // 置中公式：(畫布寬高 - 圖片寬高) / 2f
-        val offsetX = (size.width - minionsWidth) / 2f
-        val offsetY = (size.height - minionsHeight) / 2f
+        val minionsWidth = minionsImage.width.toFloat()
+        val minionsHeight = minionsImage.height.toFloat()
 
-        // 將畫布起點移至置中位置後畫圖
+        val offsetX = ((size.width - minionsWidth) / 2f) + offsetPosition.x
+        val offsetY = ((size.height - minionsHeight) / 2f) + offsetPosition.y
+
         translate(offsetX, offsetY) {
             drawImage(minionsImage)
         }
-
     }
 }
-
-
