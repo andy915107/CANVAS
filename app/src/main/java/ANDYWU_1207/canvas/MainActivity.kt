@@ -49,7 +49,7 @@ fun TestCanvas(modifier: Modifier = Modifier) {
             color = Color.Blue,
             topLeft = Offset(300f, 200f),
             size = Size(200f, 200f),
-            style = Stroke(width = 5f) // 使用 style 控制外框樣式
+            style = Stroke(width = 10f) // 使用 style 控制外框樣式
         )
     }
 }
